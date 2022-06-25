@@ -56,39 +56,39 @@ impl App {
     }
 
     pub fn next(&mut self) {
-        let selected_table = match self.highlighted {
-            TableChunk::TodoList => (&mut self.todo_list_state, self.todos.len()),
-            TableChunk::SelectedTodo => (&mut self.selected_todo_state, TodoObj::item_count()),
+        let selected_table_prop = match self.highlighted {
+            TableChunk::TodoList => (&mut self.todo_list_state, self.todos.len(), 1),
+            TableChunk::SelectedTodo => (&mut self.selected_todo_state, TodoObj::item_count(), 2),
         };
-        let i = match selected_table.0.selected() {
+        let i = match selected_table_prop.0.selected() {
             Some(i) => {
-                if i >= selected_table.1 - 1 {
+                if i >= selected_table_prop.1 - selected_table_prop.2 {
                     0
                 } else {
-                    i + 1
+                    i + selected_table_prop.2
                 }
             }
             None => 0,
         };
-        selected_table.0.select(Some(i));
+        selected_table_prop.0.select(Some(i));
     }
 
     pub fn previous(&mut self) {
-        let selected_table = match self.highlighted {
-            TableChunk::TodoList => (&mut self.todo_list_state, self.todos.len()),
-            TableChunk::SelectedTodo => (&mut self.selected_todo_state, TodoObj::item_count()),
+        let selected_table_prop = match self.highlighted {
+            TableChunk::TodoList => (&mut self.todo_list_state, self.todos.len(), 1),
+            TableChunk::SelectedTodo => (&mut self.selected_todo_state, TodoObj::item_count(), 2),
         };
-        let i = match selected_table.0.selected() {
+        let i = match selected_table_prop.0.selected() {
             Some(i) => {
                 if i == 0 {
-                    selected_table.1 - 1
+                    selected_table_prop.1 - selected_table_prop.2
                 } else {
-                    i - 1
+                    i - selected_table_prop.2
                 }
             }
             None => 0,
         };
-        selected_table.0.select(Some(i));
+        selected_table_prop.0.select(Some(i));
     }
 
     pub fn select(&mut self, target_chunk: TableChunk) {
@@ -203,7 +203,7 @@ fn render_input_area<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: &Rect) {
             InputMode::Normal => Style::default(),
             InputMode::Editing => Style::default().fg(Color::Yellow),
         })
-        .block(Block::default().borders(Borders::ALL).title("Input"));
+        .block(Block::default().borders(Borders::ALL).title("Modify"));
 
     match app.input_mode {
         InputMode::Normal => {}
